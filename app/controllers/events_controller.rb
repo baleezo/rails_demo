@@ -16,7 +16,7 @@ class EventsController < ApplicationController
     #@event = Event.new(:name => params[:event][:name])
     if @event.save
       flash[:notice] = 'event was successfully created'
-      redirect_to :action => :index
+      redirect_to events_path
     else
       flash[:alert] = 'event cerating was failed'
       render :action => :new
@@ -35,7 +35,7 @@ class EventsController < ApplicationController
     @page_title = @event.name
     if @event.update(event_params)
       flash[:notice] = 'event was successfully updated'
-      redirect_to :action => :show, :id => @event
+      redirect_to event_path(@event)
     else
       flash[:alert] = 'event editing was failed'
       render :action => :edit
@@ -45,7 +45,7 @@ class EventsController < ApplicationController
   def destroy
     @event.destroy
     flash[:notice] = 'event was successfully deleted'
-    redirect_to :action => :index
+    redirect_to events_path
   end
 
   private
