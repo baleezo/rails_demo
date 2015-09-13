@@ -3,7 +3,8 @@ class EventsController < ApplicationController
   before_action :set_event, :only => ['show', 'edit', 'update', 'destroy']
   
   def index
-    @events = Event.all
+    #@events = Event.all
+    @events = Event.page(params[:page]).per(5)
   end
 
   def new
@@ -13,9 +14,13 @@ class EventsController < ApplicationController
   def create
     @event = Event.new(event_params)
     #@event = Event.new(:name => params[:event][:name])
-    @event.save
-
-    redirect_to :action => :index
+    if @event.save
+      flash[:notice] = 'event was successfully created'
+      redirect_to :action => :index
+    else
+      flash[:alert] = 'event cerating was failed'
+      render :action => :new
+    end
   end
 
   def show
@@ -28,14 +33,18 @@ class EventsController < ApplicationController
 
   def update
     @page_title = @event.name
-    @event.update(event_params)
-
-    redirect_to :action => :show, :id => @event
+    if @event.update(event_params)
+      flash[:notice] = 'event was successfully updated'
+      redirect_to :action => :show, :id => @event
+    else
+      flash[:alert] = 'event editing was failed'
+      render :action => :edit
+    end
   end
 
   def destroy
     @event.destroy
-
+    flash[:notice] = 'event was successfully deleted'
     redirect_to :action => :index
   end
 
