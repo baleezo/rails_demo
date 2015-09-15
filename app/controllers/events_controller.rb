@@ -5,6 +5,13 @@ class EventsController < ApplicationController
   def index
     #@events = Event.all
     @events = Event.page(params[:page]).per(5)
+
+    respond_to do |format|
+      format.html # index.html.erb
+      format.xml {render :xml => @events.to_xml}
+      format.json {render :json => @events.to_json}
+      format.atom {@feed_title = "My event list"} #index.atom.builder
+    end
   end
 
   def new
@@ -24,7 +31,13 @@ class EventsController < ApplicationController
   end
 
   def show
-    @page_title = @event.name
+    #@page_title = @event.name
+    respond_to do |format|
+      #logger.debug "event: #{@event.inspect}"
+      format.html {@page_title = @event.name}
+      format.xml
+      format.json {render :json => {id: @event.id, name: @event.name}.to_json}
+    end
   end
 
   def edit
@@ -33,9 +46,11 @@ class EventsController < ApplicationController
 
   def update
     @page_title = @event.name
+    #if find_or_creat_by_name(@event.location
     if @event.update(event_params)
       flash[:notice] = 'event was successfully updated'
       redirect_to event_path(@event)
+      #redirect_to :action => :show, :id => @event
     else
       flash[:alert] = 'event editing was failed'
       render :action => :edit
@@ -51,7 +66,8 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.require(:event).permit(:name, :description)
+    params.require(:event).permit(:name, :description, :category_id,
+                                  :location_attributes => [:id, :name, :_destroy])
   end
 
   def set_event
